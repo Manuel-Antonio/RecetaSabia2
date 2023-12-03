@@ -1,0 +1,581 @@
+<div class="{{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}}">
+  <div class="container">
+    <div class="flex flex-col justify-center items-center pt-5">
+      <img
+        class="w-32 bg-white rounded-full h-32"
+        src="https://res.cloudinary.com/djsl4a5py/image/upload/v1701619932/RecetaSabia/icon-384x384_rgh1pw.png"
+        alt="Imagen de Logo"
+      />
+      <h1 class="text-5xl font-black text-white mt-4">Listado de Platillos</h1>
+      <p class="text-yellow-500 font-black text-2xl mt-2">
+        Elige entre preparar el platillo o ya tenerlo hecho
+      </p>
+    </div>
+  
+    <!-- Navegacion -->
+    <nav class="mt-5 mb-4">
+      <ul class="flex flex-row items-center justify-center gap-2 flex-wrap">
+        <button
+          *ngFor="let item of categoriasList"
+          class="text-black font-black p-2 text-lg bg-white hover:hover:bg-gray-300 rounded flex gap-2 items-center"
+          type="button"
+          (click)="obtenerCategoriaPorId(item.id)"
+        >
+          <img [src]="item.imagen" [alt]="item.nombre" class="w-12 h-12" />
+          {{ item.nombre }}
+        </button>
+      </ul>
+    </nav>
+    <!-- Modo noche -->
+    <div class="flex items-center justify-center mb-3 ">
+      <label for="darkModeToggle" class="cursor-pointer" (click)="modoNoche()">
+        <input
+          type="checkbox"
+          id="darkModeToggle"
+          class="hidden"
+          [(ngModel)]="darkMode"
+        />
+        <div
+          class="w-10 h-6 {{darkMode ? 'bg-zinc-900':'bg-indigo-700'}} rounded-full p-1 "
+          [class.bg-blue-500]="darkMode"
+        >
+          <div
+            class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform"
+            [class.translate-x-full]="darkMode"
+          ></div>
+        </div>
+      </label>
+    </div>
+    <!-- Tabla -->
+    <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-4">
+      <div
+        class="bg-white rounded-md overflow-hidden"
+        *ngFor="let item of productListPorCategoria"
+      >
+        <img [src]="item.imagen" alt="Card image" />
+        <div class="p-3 space-y-2">
+          <h4 class="text-3xl font-bold">{{ item.nombre }}</h4>
+          <p class="text-4xl font-black text-yellow-500">S/{{ item.precio }}</p>
+          <button
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#myModal"
+            (click)="productoElegido(item.id)"
+            class="p-2 w-full text-center {{
+              isProductCarrito(item.id) ? 'bg-amber-500' : darkMode ? 'bg-indigo-900' : 'bg-zinc-900'
+            }} uppercase text-white font-bold rounded mt-4"
+          >
+            {{ isProductCarrito(item.id) ? "Modificar" : "Ver receta" }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Botones de offcanvas -->
+    <div
+      class="fixed bottom-5 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex"
+    >
+      <button
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#carrito"
+        class="bg-white flex gap-2 hover:bg-gray-200 text-black shadow-sm shadow-black font-bold py-2 px-4 rounded"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+          />
+        </svg>
+  
+        Carrito
+      </button>
+      <button
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#pagos"
+        class="{{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}} flex gap-2 {{darkMode ? 'hover:bg-indigo-700' : 'hover:bg-zinc-700'}} shadow-sm text-white shadow-black font-bold py-2 px-4 rounded ml-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+          />
+        </svg>
+  
+        Pagos
+      </button>
+    </div>
+    <!-- offcanvas - Carrito -->
+    <div class="offcanvas offcanvas-start" id="carrito">
+      <div class="flex justify-end mt-3 pe-3">
+        <button
+          type="button"
+          class="btn btn-close text-2xl flex justify-center items-center"
+          data-bs-dismiss="offcanvas"
+        >
+          x
+        </button>
+      </div>
+  
+      <div class="offcanvas-header">
+        <div>
+          <h1 class="text-4xl font-black">Carrito de compras</h1>
+          <p class="mt-1">Administra tus platillos aquí</p>
+          <hr class="mt-3 text-gray-400 w-full" />
+        </div>
+      </div>
+      <div class="offcanvas-body">
+        <p class="text-lg font-bold text-gray-400 mb-3">
+          Cantidad de items: {{ carrito.length }}
+        </p>
+        <div class="space-y-3">
+          <div
+            class="flex gap-3 border-b last-of-type:border-0 py-3"
+            *ngFor="let item of carrito"
+          >
+            <div class="w-1/3">
+              <img
+                class="rounded"
+                [src]="item.imagen"
+                alt="Imagen de {{ item.nombre }}"
+              />
+            </div>
+            <div class="w-2/3">
+              <h3 class="text-xl font-black">{{ item.nombre }}</h3>
+              <p class="text-2xl font-black text-yellow-500">
+                S/{{ item.precio }}
+              </p>
+  
+              <div class="flex gap-3 items-center">
+                <p class="font-bold">Cantidad:</p>
+                <div class="flex justify-center items-center gap-2">
+                  <button (click)="disminuirCantidad(item)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+  
+                  <input
+                    type="text"
+                    class="p-2 w-16 border border-spacing-1 rounded text-center"
+                    [value]="item.cantidadElegida"
+                  />
+                  <button (click)="aumentarCantidad(item)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <p>
+                <span class="font-bold">Subtotal: </span>S/{{
+                  subtotal(item).toFixed(2)
+                }}
+              </p>
+            </div>
+            <div>
+              <div class="flex justify-end">
+                <button class="text-2xl" (click)="eliminarProducto(item.id)">
+                  x
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-2xl {{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}} font-black text-white px-3 py-2 rounded">
+          Total a pagar: S/{{ totalPagar.toFixed(2) }}
+        </p>
+      </div>
+    </div>
+    <!-- offcanvas - Pagos -->
+    <div class="offcanvas offcanvas-end" id="pagos">
+      <div class="flex justify-end mt-3 pe-3">
+        <button
+          type="button"
+          class="btn btn-close text-2xl flex justify-center items-center"
+          data-bs-dismiss="offcanvas"
+        >
+          x
+        </button>
+      </div>
+  
+      <div class="offcanvas-header">
+        <div>
+          <h1 class="text-4xl font-black">Pagar pedido</h1>
+          <p class="mt-1">Realiza tu pago facil de tu pedido</p>
+          <hr class="mt-3 text-gray-400" />
+        </div>
+      </div>
+      <div class="offcanvas-body">
+        <form>
+          <div class="mb-4">
+            <label
+              for="nombre"
+              class="block text-sm font-bold uppercase text-gray-700 mb-2"
+              >Nombre y Apellido</label
+            >
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              [(ngModel)]="pagoNombre"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+  
+          <div class="mb-4">
+            <label
+              for="direccion"
+              class="block text-sm font-bold uppercase text-gray-700 mb-2"
+              >Dirección de Envío</label
+            >
+            <textarea
+              id="direccion"
+              name="direccion"
+              [(ngModel)]="pagoDireccion"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+              rows="2"
+            ></textarea>
+          </div>
+  
+          <div class="mb-4">
+            <label class="block text-sm font-bold uppercase text-gray-700 mb-2"
+              >Opciones de Entrega</label
+            >
+            <div class="flex gap-3 items-center text-gray-800">
+              <button
+                type="button"
+                (click)="handleButtonClick()"
+                [ngClass]="{'opacity-50': !isActive}"
+                [disabled]="!isActive"
+                class="w-1/2 border-gray-500 shadow h-24 rounded flex flex-col justify-center items-center  {{darkMode ? 'hover:bg-indigo-700' : 'hover:bg-zinc-900'}} hover:text-white transition-all"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                  />
+                </svg>
+  
+                <p>Platino (+S/5)</p>
+              </button>
+              <button
+                type="button"
+                (click)="handleButtonClick()"
+                [ngClass]="{'opacity-30 ': isActive}"
+                [disabled]="isActive"
+                class="w-1/2 border-gray-500 shadow h-24 rounded {{darkMode ? 'hover:bg-indigo-700' : 'hover:bg-zinc-900'}} hover:text-white transition-all"
+              >
+                <p>Express (+S/8)</p>
+                <p>+ Postre sorpresa</p>
+              </button>
+            </div>
+          </div>
+  
+          <div class="mb-4">
+            <label class="block text-sm font-bold uppercase text-gray-700 mb-2"
+              >Método de Pago</label
+            >
+            <div class="flex items-center text-gray-800">
+              <input
+                type="checkbox"
+                id="tarjeta"
+                name="pago"
+                class="mr-2 form-check-input bg-gray-200"
+                [(ngModel)]="mostrarDiv"
+              />
+              <label for="tarjeta">Tarjeta de Crédito</label>
+            </div>
+            <div *ngIf="mostrarDiv">
+              <!-- Detalles de la Tarjeta -->
+              <div class="mt-4">
+                <label
+                  for="numeroTarjeta"
+                  class="block text-sm font-bold uppercase text-gray-700 mb-2"
+                  >Número de Tarjeta</label
+                >
+                <input
+                  type="text"
+                  id="numeroTarjeta"
+                  name="numeroTarjeta"
+                  [(ngModel)]="pagoNumeroTarjeta"
+                  class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div class="flex justify-between mt-4 gap-2">
+                <div class="w-1/2">
+                  <label
+                    for="fechaExpiracion"
+                    class="block text-sm font-bold uppercase text-gray-700 mb-2"
+                    >Fecha de Expiración</label
+                  >
+                  <input
+                    type="text"
+                    id="fechaExpiracion"
+                    name="fechaExpiracion"
+                    placeholder="MM/AA"
+                    [(ngModel)]="pagoFechaExpiracion"
+                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div class="w-1/2">
+                  <label
+                    for="codigoSeguridad"
+                    class="block text-sm font-bold uppercase text-gray-700 mb-2"
+                    >Código de Seguridad</label
+                  >
+                  <input
+                    type="text"
+                    id="codigoSeguridad"
+                    name="codigoSeguridad"
+                    [(ngModel)]="pagoCodigoSeguridad"
+                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-2xl bg-gray-100 font-black p-3 rounded">
+            Total a pagar: S/{{ totalPagar.toFixed(2) }}
+          </p>
+          <div data-bs-dismiss="offcanvas">
+            <button
+              type="submit"
+              data-bs-toggle="modal"
+              data-bs-target="#myModalPago"
+              class="{{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}} w-full justify-center uppercase flex gap-2 text-white mt-3 py-3 px-6 rounded-md {{darkMode ? 'hover:bg-indigo-700' : 'hover:bg-zinc-700'}} focus:outline-none focus:shadow-outline-indigo"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+                />
+              </svg>
+  
+              <span>Realizar Pago</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <!-- The Modal - Detalle de Producto-->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content m-0">
+          <!-- Modal body -->
+          <div class="modal-body space-y-4" #contenidoPDF>
+            <div class="space-y-3">
+              <img
+                [src]="producto.imagen"
+                [alt]="producto.nombre"
+                class="w-full"
+              />
+  
+              <h2 class="text-4xl font-black">{{ producto.nombre }}</h2>
+              <p class="text-4xl text-yellow-500 font-black">
+                S/{{ producto.precio }}
+              </p>
+              <p class="text-xl text-gray-500">
+                <span
+                  >{{ producto.cantidadPersonas }}
+                  {{
+                    producto.cantidadPersonas != 1 ? " personas" : " persona"
+                  }}</span
+                >
+                <span> - </span>
+                <span
+                  >{{ producto.stock }}
+                  {{ producto.stock != 1 ? " unidades" : " unidad" }}</span
+                >
+              </p>
+  
+              <div>
+                <h3 class="font-bold text-xl">Descripción</h3>
+                <p>
+                  {{ producto.descripcion }}
+                </p>
+              </div>
+              <div>
+                <h3 class="font-bold text-xl">Ingredientes</h3>
+                <ul class="list-group mt-3">
+                  <li
+                    class="list-group-item"
+                    *ngFor="let ing of ingredientesList"
+                  >
+                    {{ ing }}
+                  </li>
+                </ul>
+              </div>
+              <div class="pb-3">
+                <h3 class="font-bold text-xl">Preparación</h3>
+                <ul class="space-y-2 mt-2">
+                  <li *ngFor="let item of preparacionList; let i = index">
+                    {{ i + 1 }}. {{ item }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <hr class="mt-3 text-gray-400 w-full" />
+          <!-- Modal footer -->
+          <div class="flex gap-2 p-3">
+            <button
+              type="button"
+              class="btn hover:bg-yellow-700 bg-yellow-500 text-white"
+              (click)="descargarPDF()"
+            >
+              Descargar Receta
+            </button>
+  
+            <div data-bs-toggle="offcanvas" data-bs-target="#carrito">
+              <button
+                type="button"
+                class="btn {{darkMode ? 'hover:bg-indigo-700' : 'hover:bg-zinc-700'}} {{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}} text-white"
+                (click)="agregarCarrito(producto)"
+                data-bs-dismiss="modal"
+              >
+                Agregar al carrito
+              </button>
+            </div>
+  
+            <button
+              type="button"
+              class="btn btn-danger bg-red-600 text-white"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- The Modal - Pago -->
+    <div class="modal" id="myModalPago">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header {{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}}">
+            <h4 class="text-3xl text-center font-bold text-white">
+              Resumen de Pago
+            </h4>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+  
+          <!-- Modal body -->
+          <div class="modal-body">
+            <p class="text-xl font-bold">Nombre:</p>
+            <p class="text-xl">{{ pagoNombre }}</p>
+            <p class="text-xl font-bold">Dirección de envío:</p>
+            <p class="text-xl">{{ pagoDireccion }}</p>
+            <p class="text-xl font-black {{darkMode ? 'bg-indigo-900' : 'bg-zinc-900'}} text-white p-3 mt-2">
+              Total pagado: S/{{ totalPagar.toFixed(2) }}
+            </p>
+            <p class="text-xl mt-3">Listado de Productos</p>
+            <div class="grid grid-cols-2 gap-3 mt-4">
+              <div
+                *ngFor="let item of carrito"
+                class="space-y-3 p-3 flex flex-col justify-center items-center"
+              >
+                <div>
+                  <img
+                    [src]="item.imagen"
+                    [alt]="item.nombre"
+                    class="w-32 h-32 rounded-full"
+                  />
+                </div>
+                <div class="space-y-2 text-center">
+                  <p class="font-black text-sm">{{ item.nombre }}</p>
+                  <p class="text-sm">S/{{ item.precio }}</p>
+                  <p class="text-sm">
+                    {{ item.cantidadElegida }}
+                    {{ item.cantidadElegida == 1 ? " platillo" : "platillos" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              (click)="resetear()"
+              class="btn btn-danger bg-red-600"
+              data-bs-dismiss="modal"
+            >
+              Culminar Pedido
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary bg-blue-600"
+              data-bs-dismiss="modal"
+            >
+              Seguir Comprando
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
