@@ -206,12 +206,11 @@ export class ListadoComponent implements OnInit {
 
   resetear() {
     // Realiza acciones necesarias con this.myForm.value
+    this.guardarPago();
     this.carrito = [];
     this.totalPagar = 0;
     this.pagoNombre = "";
     this.pagoDireccion = "";
-
-    this.guardarPago();
     this.saveCart();
   }
 
